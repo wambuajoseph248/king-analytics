@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+// ========================================
+// CLIENTS
+// ========================================
+
+model Client {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings Booking[]
+
+  @@map("clients")
+}
+
+
+// ========================================
+// SERVICES
+// ========================================
+
+model Service {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  price       Decimal? @db.Decimal(10, 2)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bookings Booking[]
+
+  @@map("services")
+}
+
+
+// ========================================
+// BOOKINGS
+// ========================================
+
+model Booking {
+  id            Int           @id @default(autoincrement())
+
+  clientId      Int
+  serviceId     Int
+
+  description   String
+
+  status        BookingStatus @default(PENDING)
+
+  quotedAmount  Decimal?      @db.Decimal(10, 2)
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  client        Client        @relation(fields: [clientId], references: [id])
+
+  service       Service       @relation(fields: [serviceId], references: [id])
+
+  payments      Payment[]
+
+  @@index([clientId])
+  @@index([serviceId])
+  @@map("bookings")
+}
+
+
+// ========================================
+// PAYMENTS
+// ========================================
+
+model Payment {
+  id            Int           @id @default(autoincrement())
+
+  bookingId     Int
+
+  amount        Decimal       @db.Decimal(10, 2)
+
+  method        PaymentMethod
+
+  status        PaymentStatus @default(PENDING)
+
+  transactionId String?
+
+  createdAt     DateTime      @default(now())
+
+  booking       Booking       @relation(fields: [bookingId], references: [id])
+
+  @@index([bookingId])
+  @@map("payments")
+}
+
+
+// ========================================
+// BOOKING STATUS
+// ========================================
+
+enum BookingStatus {
+  PENDING
+  QUOTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+
+// ========================================
+// PAYMENT METHOD
+// ========================================
+
+enum PaymentMethod {
+  MPESA
+  PAYPAL
+}
+
+
+// ========================================
+// PAYMENT STATUS
+// ========================================
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
