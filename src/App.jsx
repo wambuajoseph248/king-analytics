@@ -7,7 +7,7 @@ const icons = {
   "Research Services": "🔎",
   "Database Management": "💾",
   "Business Analysis": "💼",
-  Consultation: "📅",
+  "Consultation": "📅",
   "Data Visualization": "📈",
   "Statistical Consulting": "📐",
   "Business Intelligence": "💡",
@@ -38,7 +38,7 @@ function App() {
   useEffect(() => {
     const loadServices = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/services");
+        const response = await fetch("https://king-analytics-api.onrender.com/api/services");
         const data = await response.json();
 
         if (!response.ok || !data.success) {
@@ -87,7 +87,7 @@ function App() {
     });
 
     try {
-      const response = await fetch("http://localhost:5000/api/bookings", {
+      const response = await fetch("https://king-analytics-api.onrender.com/api/bookings", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
