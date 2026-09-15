@@ -321,6 +321,62 @@ app.get(
 );
 
 /* =========================
+   UPDATE BOOKING QUOTE
+========================= */
+
+app.patch(
+  "/api/bookings/:id/quote",
+  authenticateAdmin,
+  async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const { quotedAmount } = req.body;
+
+      if (!Number.isInteger(id)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid booking ID.",
+        });
+      }
+
+      const amount = Number(quotedAmount);
+
+      if (!Number.isFinite(amount) || amount <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Please enter a valid quotation amount.",
+        });
+      }
+
+      const booking = await prisma.booking.update({
+        where: { id },
+        data: {
+          quotedAmount: amount,
+          status: "QUOTED",
+        },
+        include: {
+          client: true,
+          service: true,
+        },
+      });
+
+      res.json({
+        success: true,
+        message: "Quotation saved successfully.",
+        booking,
+      });
+    } catch (error) {
+      console.error("QUOTE UPDATE ERROR:", error);
+
+      res.status(500).json({
+        success: false,
+        message: "Unable to save quotation.",
+      });
+    }
+  }
+);
+
+/* =========================
    UPDATE BOOKING STATUS
 ========================= */
 
@@ -333,11 +389,12 @@ app.patch(
       const { status } = req.body;
 
       const allowedStatuses = [
-        "PENDING",
-        "IN_PROGRESS",
-        "COMPLETED",
-        "CANCELLED",
-      ];
+  "PENDING",
+  "QUOTED",
+  "IN_PROGRESS",
+  "COMPLETED",
+  "CANCELLED",
+];
 
       if (!Number.isInteger(id)) {
         return res.status(400).json({
