@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./Admin.css";
 
-const API_URL = "http://localhost:5000";
+const API_URL = "https://king-analytics-api.onrender.com";
 
 function Admin() {
   const [loggedIn, setLoggedIn] = useState(
